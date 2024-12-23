@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>抽奖 www.lxh5068.com</title>
+		<meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+		<meta content="yes" name="apple-mobile-web-app-capable">
+		<meta content="black" name="apple-mobile-web-app-status-bar-style">
+		<meta content="telephone=no" name="format-detection">
+		<meta content="email=no" name="format-detection">
+		<meta http-equiv="Cache-Control" content="no-cache">
+		<meta name="x5-orientation" content="portrait">
+		<link rel="stylesheet" href="css/style.css" />
+		<script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+		<script type="text/javascript" src="js/if_heng.js"></script>
+		<script type="text/javascript" src="js/font-size.js"></script>
+
+	</head>
+	<body >
+
+
+		<div class="box-size" id="app" :style="{backgroundImage:'url('+a_bg+')'}">
+			<p class="top"><img :src=a_top></p>
+			<div class="zhuanpan-div">
+				<img :src=a_zhuanpan_bg>
+				<div class="zhuanpan" id="rotate">
+					<img :src=a_zhuanpan  >
+
+						<!--<li  v-for="gift in gifts"   ><span >{{gift.pic}}</span></li>-->
+						<my-component :gift = 'gifts'></my-component>
+
+				</div>
+				<button type="button" @click="start()" class="btn start-btn"><img :src=a_start></button>
+			</div>
+			<div class="bottom">
+				<img :src=a_bottom>
+				<button class="btn rule-btn" @click="t_type='rule',if_tc = true"></button>
+				<button class="btn gift-btn" @click="t_type='my',if_tc = true"></button>
+				<button class="btn jilu-btn">中奖记录</button>
+			</div>
+
+
+			<div class="tanchuang" v-if="if_tc" >
+				<div class=" back-bg" @click="if_tc = false"></div>
+				<transition name="fade">
+					<div v-if="t_type == 'my'" class="gift-show">
+						<img :src=a_my width="100%">
+						<ul>
+							<li></li>
+						</ul>
+						<button class="btn close" @click="if_tc = false"></button>
+					</div>
+					<div v-else-if="t_type == 'rule'" class="rule-show" >
+						<img :src=a_rule  width="100%">
+						<button class="btn close" @click="if_tc = false"></button>
+					</div>
+					<div v-else-if="t_type == 'gift'" class="rule-show">
+						<img :src=a_gift  width="100%">
+						<div class="gift-mess">
+							<p><img :src="result_gift_pic"></p>
+							<p>{{result_gift_name}}</p>
+						</div>
+						<button class="btn use-btn"></button>
+					</div>
+				</transition>
+			</div>
+
+
+
+		</div>
+
+
+
+
+		<script type="text/x-template" id="my-component" >
+			<ul>
+				<template  v-for="item in gift" >
+					<li  :style="{transform:'rotate('+item.angles+'deg)'}"><span :style="{backgroundImage:'url(images/'+item.pic+'.png)'}"></span></li>
+				</template>
+			</ul>
+		</script>
+
+		<script type="text/javascript" src="js/vue.min.js"></script>
+		<script type="text/javascript" src="js/awardRotate.js"></script>
+		<script>
+
+
+
+            Vue.component('my-component', {
+                template: '#my-component',
+                props: {
+                    gift: Array,
+                },
+            });
+
+
+			var vue = new Vue({
+				el:"#app",
+				data:{
+                    if_tc:false,  //弹窗是否显示
+					t_type: "",  //弹窗类型
+                    gifts:[
+                        {
+                            pic:'gift1',
+							name:'100M',
+							angles:''
+                        },
+                        {
+                            pic:'gift2',
+                            name:'200M',
+                            angles:''
+                        },
+                        {
+                            pic:'gift3',
+                            name:'300M',
+                            angles:''
+                        },{
+                            pic:'gift4',
+                            name:'400M',
+                            angles:''
+                        },
+                        {
+                            pic:'gift5',
+                            name:'500M',
+                            angles:''
+                        },{
+                            pic:'gift6',
+                            name:'600M',
+                            angles:''
+                        },
+                        {
+                            pic:'gift7',
+                            name:'700M',
+                            angles:''
+                        },
+                        {
+                            pic:'gift8',
+                            name:'800M',
+                            angles:''
+                        }
+
+					],  //奖品
+					result_gift_name:'',  //中奖奖品名
+                    result_gift_pic:'',  //中奖奖品图片
+					a_bg:'images/bg.jpg', //背景
+					a_top:'images/top.png', //顶部图
+					a_zhuanpan_bg:'images/zhuanpan-bg.png',//转盘背景
+					a_zhuanpan:'images/zhuanpan.png',//转盘图
+					a_start:'images/start-btn.png',//开始按钮
+					a_bottom:'images/bottom.png',//底部图
+					a_rule:'images/rule-show.png',//活动规则图
+					a_my:'images/my.png',//我的奖品图
+                    a_gift:'images/gift-bg.png' //奖品弹窗
+				},
+                mounted:function () {
+                    this.fangxiang();
+                },
+                computed:{
+
+				},
+                methods:{
+                    fangxiang:function () {
+                        var vm = this,
+                            gift_l = vm.gifts.length,
+                            every_angle = Math.floor(360/gift_l);
+                        for(var i = 0;i<gift_l;i++){
+                            vm.gifts[i].angles = every_angle/2 + every_angle*i;
+                        }
+
+                    },
+                    start:function () {
+                        var vm = this,
+							gift_l = vm.gifts.length,
+                            every_angle = Math.floor(360/gift_l);
+                        var bRotate = false;
+                        var rotateFn = function (awards, angles, txt){
+                            bRotate = !bRotate;
+                            $('#rotate').stopRotate();
+                            $('#rotate').rotate({
+                                angle:0,
+                                animateTo:angles+1800,
+                                duration:8000,
+                                callback:function (){
+                                    vm.result_gift_name = txt;
+                                    vm.result_gift_pic = 'images/p'+(awards+1)+'.png';
+                                    vm.t_type='gift';
+                                    vm.if_tc = true;
+                                    bRotate = !bRotate;
+                                }
+                            })
+                        };
+
+                        if(bRotate)return;
+                        var item = rnd(0,gift_l-1);  //随机
+
+						if(gift_l==8){
+                            switch (item) {
+                                case 0:
+                                    var angle = rnd(1,44);  //不取线
+                                    rotateFn(0, angle, vm.gifts[0].name);
+                                    break;
+                                case 1:
+                                    var angle = rnd(46,89);  //不取线
+                                    rotateFn(8, angle, vm.gifts[7].name);
+                                    break;
+                                case 2:
+                                    var angle = rnd(91,134);  //不取线
+                                    rotateFn(7, angle, vm.gifts[6].name);
+                                    break;
+                                case 3:
+                                    var angle = rnd(136,179);  //不取线
+                                    rotateFn(6, angle, vm.gifts[5].name);
+                                    break;
+                                case 4:
+                                    var angle = rnd(181,224);  //不取线
+                                    rotateFn(5, angle, vm.gifts[4].name);
+                                    break;
+                                case 5:
+                                    var angle = rnd(226,269);  //不取线
+                                    rotateFn(4, angle, vm.gifts[3].name);
+                                    break;
+                                case 6:
+                                    var angle = rnd(271,314);  //不取线
+                                    rotateFn(3, angle, vm.gifts[2].name);
+                                    break;
+                                case 7:
+                                    var angle = rnd(316,359);  //不取线
+                                    rotateFn(2, angle, vm.gifts[1].name);
+                                    break;
+                            }
+
+                        }
+                        else if(gift_l==6){
+                            switch (item) {
+                                case 0:
+                                    var angle = rnd(1,59);  //不取线
+                                    rotateFn(0, angle, vm.gifts[0].name);
+                                    break;
+                                case 1:
+                                    var angle = rnd(61,119);  //不取线
+                                    rotateFn(8, angle, vm.gifts[5].name);
+                                    break;
+                                case 2:
+                                    var angle = rnd(121,179);  //不取线
+                                    rotateFn(7, angle, vm.gifts[4].name);
+                                    break;
+                                case 3:
+                                    var angle = rnd(181,239);  //不取线
+                                    rotateFn(6, angle, vm.gifts[3].name);
+                                    break;
+                                case 4:
+                                    var angle = rnd(241,299);  //不取线
+                                    rotateFn(5, angle, vm.gifts[2].name);
+                                    break;
+                                case 5:
+                                    var angle = rnd(301,359);  //不取线
+                                    rotateFn(4, angle, vm.gifts[1].name);
+                                    break;
+                            }
+                        }
+                        else if(gift_l==5){
+                            switch (item) {
+                                case 0:
+                                    var angle = rnd(1,71);  //不取线
+                                    rotateFn(0, angle, vm.gifts[0].name);
+                                    break;
+                                case 1:
+                                    var angle = rnd(73,143);  //不取线
+                                    rotateFn(8, angle, vm.gifts[4].name);
+                                    break;
+                                case 2:
+                                    var angle = rnd(145,215);  //不取线
+                                    rotateFn(7, angle, vm.gifts[3].name);
+                                    break;
+                                case 3:
+                                    var angle = rnd(217,287);  //不取线
+                                    rotateFn(6, angle, vm.gifts[2].name);
+                                    break;
+                                case 4:
+                                    var angle = rnd(289,359);  //不取线
+                                    rotateFn(5, angle, vm.gifts[1].name);
+                                    break;
+                            }
+                        }
+                        else if(gift_l==4){
+                            switch (item) {
+                                case 0:
+                                    var angle = rnd(1,89);  //不取线
+                                    rotateFn(0, angle, vm.gifts[0].name);
+                                    break;
+                                case 1:
+                                    var angle = rnd(91,179);  //不取线
+                                    rotateFn(8, angle, vm.gifts[5].name);
+                                    break;
+                                case 2:
+                                    var angle = rnd(181,269);  //不取线
+                                    rotateFn(7, angle, vm.gifts[4].name);
+                                    break;
+                                case 3:
+                                    var angle = rnd(271,359);  //不取线
+                                    rotateFn(6, angle, vm.gifts[3].name);
+                                    break;
+                            }
+                        }
+
+                    }
+				}
+
+            });
+
+
+
+
+
+
+
+
+            function rnd(n, m){
+                return Math.floor(Math.random()*(m-n+1)+n)
+            }
+			
+
+		</script>
+	</body>
+</html>
